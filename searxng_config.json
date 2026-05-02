@@ -1,0 +1,23 @@
+{
+  "enabled_engines": [
+    "bing",
+    "duckduckgo",
+    "yandex",
+    "qwant",
+    "brave",
+    "github",
+    "gitlab",
+    "arxiv",
+    "wikipedia",
+    "youtube",
+    "dailymotion",
+    "reddit"
+  ],
+  "default_categories": [
+    "general"
+  ],
+  "language": "pt-BR",
+  "safe_search": 1,
+  "max_results_per_engine": 15,
+  "timeout": 8
+}
