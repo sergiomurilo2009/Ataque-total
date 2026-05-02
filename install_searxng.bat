@@ -1,24 +1,17 @@
 @echo off
-REM ============================================================
-REM SearXNG para Windows - Instalador Automatizado
-REM ============================================================
-REM Este script instala e inicia o SearXNG automaticamente
-REM Fornecendo uma URL local pronta para uso
-REM ============================================================
-
-echo.
+chcp 65001 >nul
 echo ============================================================
-echo   SearXNG para Windows - Instalador Automatizado
+echo   SearXNG Windows - Instalador Automatico
 echo ============================================================
 echo.
 
-REM Verificar se Python está instalado
+:: Verificar se Python esta instalado
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERRO] Python não encontrado!
+    echo [ERRO] Python nao encontrado!
     echo.
     echo Por favor, instale o Python em: https://python.org
-    echo Marque a opção "Add Python to PATH" durante a instalação.
+    echo Marque a opcao "Add Python to PATH" durante a instalacao.
     pause
     exit /b 1
 )
@@ -27,83 +20,36 @@ echo [OK] Python detectado
 python --version
 echo.
 
-REM Instalar dependência aiohttp se necessário
-echo [INFO] Verificando dependências...
+:: Instalar aiohttp se necessario
+echo [INFO] Verificando dependencias...
 pip show aiohttp >nul 2>&1
 if %errorlevel% neq 0 (
     echo [INFO] Instalando aiohttp...
     pip install aiohttp --quiet
-    if %errorlevel% neq 0 (
+    if %errorlevel% equ 0 (
+        echo [OK] aiohttp instalado com sucesso
+    ) else (
         echo [ERRO] Falha ao instalar aiohttp
         pause
         exit /b 1
     )
-    echo [OK] aiohttp instalado com sucesso
 ) else (
-    echo [OK] aiohttp já está instalado
+    echo [OK] aiohttp ja esta instalado
 )
 echo.
 
-REM Verificar arquivos necessários
-if not exist "main.py" (
-    echo [ERRO] Arquivo main.py não encontrado!
-    echo Certifique-se de estar no diretório correto.
-    pause
-    exit /b 1
-)
-
-if not exist "searxng_config.json" (
-    echo [INFO] Criando configuração padrão...
-    python main.py --config searxng_config.json 2>nul
-)
-
-echo.
+:: Iniciar o servidor
 echo ============================================================
-echo   INICIANDO SERVIDOR SEARXNG
+echo   Iniciando SearXNG Windows...
+echo ============================================================
+echo.
+echo O navegador sera aberto automaticamente em:
+echo http://localhost:8080
+echo.
+echo Pressione Ctrl+C para parar o servidor
 echo ============================================================
 echo.
 
-REM Iniciar servidor em background
-echo [INFO] Iniciando servidor web na porta 8080...
-start /B python main.py --web --port 8080 --host 0.0.0.0
+python main.py --web --port 8080
 
-REM Aguardar servidor iniciar
-echo [INFO] Aguardando servidor inicializar...
-timeout /t 5 /nobreak >nul
-
-echo.
-echo ============================================================
-echo   ✅ SEARXNG INSTALADO E FUNCIONANDO!
-echo ============================================================
-echo.
-echo   🌐 Acesse no navegador:
-echo.
-echo      http://localhost:8080
-echo.
-echo   Ou na rede local:
-echo.
-echo      http://%COMPUTERNAME%:8080
-echo.
-echo ============================================================
-echo.
-echo   🔹 Funcionalidades:
-echo      • 12+ motores de busca (Google, Bing, Yandex, etc.)
-echo      • Interface moderna igual ao SearXNG original
-echo      • Bangs: !yandex, !wiki, !github, !reddit, etc.
-echo      • Sem rastreamento de IP ou cookies
-echo      • Resultados agrupados por categoria
-echo.
-echo   🔹 Para parar o servidor:
-echo      • Feche a janela do terminal que abriu
-echo      • Ou pressione Ctrl+C nela
-echo.
-echo ============================================================
-echo.
-
-REM Abrir navegador automaticamente
-echo [INFO] Abrindo navegador...
-start http://localhost:8080
-
-echo.
-echo Pressione qualquer tecla para fechar este instalador...
-pause >nul
+pause
