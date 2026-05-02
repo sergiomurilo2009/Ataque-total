@@ -105,7 +105,16 @@ async def run_cli_search(core: SearchCore, query: str, args):
 
 async def async_main(args):
     """Async main entry point"""
+    # Desabilitar cache se solicitado
+    if args.no_cache:
+        import os
+        os.environ['SEARCH_NO_CACHE'] = '1'
+    
     core = SearchCore(config_path=args.config)
+    
+    # Se no-cache estiver ativado, desabilitar cache do core
+    if args.no_cache and core.cache:
+        core.cache = None
     
     # Handle commands
     if args.clear_cache:
@@ -136,8 +145,9 @@ async def async_main(args):
         # Start web server
         app = create_app(core)
         print(f"\n🚀 Starting Ataque-total Search Server")
-        print(f"   URL: http://{args.host}:{args.port}")
-        print(f"   Press Ctrl+C to stop\n")
+        print(f"   📍 URL Local: http://127.0.0.1:{args.port}")
+        print(f"   🔓 Cache: {'DESATIVADO' if args.no_cache else 'ATIVADO'}")
+        print(f"   🛑 Pressione Ctrl+C para parar\n")
         
         # Use aiohttp to run server
         from aiohttp import web

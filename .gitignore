@@ -1,1 +1,34 @@
-Nothing should be ignored based on the provided file changes. The only modified file is `install_searxng.bat`, which appears to be a batch script for installation and doesn't fall under any of the common ignore patterns.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# Dependencies
+venv/
+.venv/
+node_modules/
+
+# Build artifacts
+dist/
+build/
+target/
+```
