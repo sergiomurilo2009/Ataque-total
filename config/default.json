@@ -1,0 +1,127 @@
+{
+  "engines": {
+    "Bing": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.1,
+      "timeout": 20,
+      "delay_min": 0.4,
+      "delay_max": 0.8
+    },
+    "DuckDuckGo": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.1,
+      "timeout": 20,
+      "delay_min": 0.3,
+      "delay_max": 0.6
+    },
+    "Yandex": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.0,
+      "timeout": 20,
+      "delay_min": 0.4,
+      "delay_max": 0.8
+    },
+    "Qwant": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.0,
+      "timeout": 20,
+      "delay_min": 0.3,
+      "delay_max": 0.6
+    },
+    "Startpage": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.1,
+      "timeout": 20,
+      "delay_min": 0.3,
+      "delay_max": 0.6
+    },
+    "Wikipedia": {
+      "enabled": true,
+      "category": "general",
+      "weight": 1.5,
+      "timeout": 15,
+      "delay_min": 0.2,
+      "delay_max": 0.4,
+      "api_url": "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch="
+    },
+    "GitHub": {
+      "enabled": true,
+      "category": "software",
+      "weight": 1.3,
+      "timeout": 15,
+      "delay_min": 0.2,
+      "delay_max": 0.4,
+      "api_url": "https://api.github.com/search/repositories?q="
+    },
+    "GitLab": {
+      "enabled": true,
+      "category": "software",
+      "weight": 1.2,
+      "timeout": 15,
+      "delay_min": 0.2,
+      "delay_max": 0.4,
+      "api_url": "https://gitlab.com/api/v4/projects?search="
+    },
+    "StackOverflow": {
+      "enabled": true,
+      "category": "software",
+      "weight": 1.3,
+      "timeout": 15,
+      "delay_min": 0.2,
+      "delay_max": 0.4
+    },
+    "Reddit": {
+      "enabled": true,
+      "category": "social",
+      "weight": 0.9,
+      "timeout": 15,
+      "delay_min": 0.2,
+      "delay_max": 0.4
+    },
+    "YouTube": {
+      "enabled": true,
+      "category": "video",
+      "weight": 1.0,
+      "timeout": 30,
+      "delay_min": 0.5,
+      "delay_max": 1.0
+    }
+  },
+  "bangs": {
+    "!w": "Wikipedia",
+    "!wiki": "Wikipedia",
+    "!gh": "GitHub",
+    "!git": "GitHub",
+    "!so": "StackOverflow",
+    "!yt": "YouTube",
+    "!r": "Reddit",
+    "!reddit": "Reddit",
+    "!g": "Google",
+    "!b": "Bing",
+    "!d": "DuckDuckGo"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl_seconds": 900,
+    "file": "search_cache.db"
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8080
+  },
+  "limits": {
+    "max_results_per_engine": 50,
+    "max_total_results": 200,
+    "max_concurrent_connections": 10
+  },
+  "security": {
+    "verify_ssl": false,
+    "remove_referer": true,
+    "random_x_forwarded_for": true
+  }
+}
