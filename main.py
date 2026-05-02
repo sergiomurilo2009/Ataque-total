@@ -9,19 +9,57 @@ import html
 from urllib.parse import quote_plus, urlparse, parse_qs
 from datetime import datetime
 from pathlib import Path
+import time
 
 # Configurações Globais
 CONFIG_FILE = Path("searxng_config.json")
 PORT = 8080
 HOST = "127.0.0.1"
 
-# User Agents para evitar bloqueios
+# User Agents extensos para evitar bloqueios - ROTATIVO
 USER_AGENTS = [
+    # Chrome Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    # Firefox Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+    # Safari Mac
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
+    # Chrome Linux
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    # Edge Windows
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
 ]
+
+# Headers base mais completos
+BASE_HEADERS = {
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8,en-US;q=0.7",
+    "Accept-Encoding": "gzip, deflate",  # Removido 'br' (Brotli) para evitar dependencia
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Windows"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
+}
+
+# Delay entre requisições (em segundos)
+REQUEST_DELAY_MIN = 1.0
+REQUEST_DELAY_MAX = 2.5
+
+# Limite de conexões simultâneas
+MAX_CONCURRENT_CONNECTIONS = 5
 
 class SearchEngine:
     def __init__(self, name, base_url, search_param, category, enabled=True, api_url=None):
@@ -30,49 +68,158 @@ class SearchEngine:
         self.search_param = search_param
         self.category = category
         self.enabled = enabled
-        self.api_url = api_url  # URL alternativa para API
-        self.headers = {
-            "User-Agent": random.choice(USER_AGENTS),
-            "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-        }
+        self.api_url = api_url  # URL alternativa para API oficial
+        self.request_count = 0  # Contador para delays
+        self.last_request_time = 0  # Timestamp da última requisição
+
+    def _get_fresh_headers(self):
+        """Gera headers completos e rotativos para cada requisição"""
+        user_agent = random.choice(USER_AGENTS)
+        headers = BASE_HEADERS.copy()
+        headers["User-Agent"] = user_agent
+        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        return headers
+
+    async def _apply_delay(self):
+        """Aplica delay aleatório entre requisições para evitar bloqueios"""
+        now = time.time()
+        elapsed = now - self.last_request_time
+        if elapsed < REQUEST_DELAY_MIN:
+            delay = random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX)
+            await asyncio.sleep(delay)
+        self.last_request_time = time.time()
 
     async def search(self, session, query):
         if not self.enabled:
             return []
         
-        # Tentar API primeiro se disponivel
+        # Aplica delay antes da requisição
+        await self._apply_delay()
+        
+        # Rotação de User-Agent a cada requisição
+        headers = self._get_fresh_headers()
+        
+        # Determina URL (API oficial ou scraping)
         if self.api_url:
-            url = f"{self.api_url}{self.search_param}={quote_plus(query)}"
+            url = f"{self.api_url}{quote_plus(query)}"
+            # Para APIs JSON, usar headers apropriados
+            if "api.php" in self.api_url or "/api/" in self.api_url:
+                headers["Accept"] = "application/json"
         else:
             url = f"{self.base_url}{self.search_param}={quote_plus(query)}"
         
         try:
-            # Headers mais realistas para evitar bloqueios
-            headers = {
-                "User-Agent": random.choice(USER_AGENTS),
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Accept-Encoding": "gzip, deflate",
-                "DNT": "1",
-                "Connection": "keep-alive",
-                "Upgrade-Insecure-Requests": "1"
-            }
-            
+            self.request_count += 1
             async with session.get(url, headers=headers, timeout=15, ssl=False, allow_redirects=True) as response:
                 if response.status == 200:
-                    html_content = await response.text()
-                    return self.parse_results(html_content, query)
+                    content_type = response.headers.get('Content-Type', '')
+                    
+                    # Se for API JSON, processar como JSON
+                    if 'application/json' in content_type or (self.api_url and ('api.php' in self.api_url or '/api/' in self.api_url)):
+                        json_data = await response.json()
+                        return self.parse_api_results(json_data, query)
+                    else:
+                        html_content = await response.text()
+                        return self.parse_results(html_content, query)
+                elif response.status == 429:
+                    print(f"[Bloqueio] {self.name}: Rate limit atingido (429)")
+                    return []
+                elif response.status == 403:
+                    print(f"[Bloqueio] {self.name}: Acesso negado (403)")
+                    return []
                 else:
                     print(f"[Erro] {self.name} retornou status {response.status}")
                     return []
         except asyncio.TimeoutError:
             print(f"[Timeout] {self.name} demorou muito para responder")
             return []
+        except aiohttp.ClientError as e:
+            error_msg = str(e)[:100]
+            print(f"[Falha Conexão] {self.name}: {error_msg}")
+            return []
         except Exception as e:
             error_msg = str(e)[:100]
             print(f"[Falha] {self.name}: {error_msg}")
             return []
+
+    def parse_api_results(self, json_data, query):
+        """Processa resultados de APIs oficiais (JSON)"""
+        results = []
+        
+        if self.name == "Wikipedia":
+            results = self._parse_wikipedia_api(json_data)
+        elif self.name == "GitHub":
+            results = self._parse_github_api(json_data)
+        else:
+            # Fallback para parsing genérico de API JSON
+            results = self._parse_generic_api(json_data)
+            
+        return results
+
+    def _parse_wikipedia_api(self, json_data):
+        """Parse da API oficial da Wikipedia"""
+        results = []
+        try:
+            search_results = json_data.get('query', {}).get('search', [])
+            for item in search_results[:10]:
+                title = item.get('title', 'Sem título')
+                snippet = item.get('snippet', 'Sem descrição')
+                # Limpar HTML do snippet da Wikipedia
+                snippet = re.sub(r'<[^>]+>', '', snippet)
+                results.append({
+                    "title": title,
+                    "url": f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}",
+                    "content": snippet,
+                    "engine": self.name,
+                    "category": self.category
+                })
+        except Exception as e:
+            print(f"[Erro Parse Wikipedia API] {str(e)[:50]}")
+        return results
+
+    def _parse_github_api(self, json_data):
+        """Parse da API oficial do GitHub"""
+        results = []
+        try:
+            items = json_data.get('items', [])
+            for item in items[:10]:
+                title = item.get('full_name', 'Sem título')
+                description = item.get('description', 'Sem descrição') or 'Sem descrição'
+                html_url = item.get('html_url', '')
+                results.append({
+                    "title": title,
+                    "url": html_url,
+                    "content": description,
+                    "engine": self.name,
+                    "category": self.category
+                })
+        except Exception as e:
+            print(f"[Erro Parse GitHub API] {str(e)[:50]}")
+        return results
+
+    def _parse_generic_api(self, json_data):
+        """Parse genérico para APIs JSON"""
+        results = []
+        # Tenta extrair dados de forma genérica
+        try:
+            if isinstance(json_data, dict):
+                for key, value in json_data.items():
+                    if isinstance(value, list):
+                        for item in value[:10]:
+                            if isinstance(item, dict):
+                                title = item.get('title', item.get('name', 'Resultado'))
+                                url = item.get('url', item.get('link', item.get('html_url', '#')))
+                                content = item.get('description', item.get('snippet', 'Sem descrição'))
+                                results.append({
+                                    "title": str(title),
+                                    "url": str(url),
+                                    "content": str(content),
+                                    "engine": self.name,
+                                    "category": self.category
+                                })
+        except Exception as e:
+            print(f"[Erro Parse Genérico API] {str(e)[:50]}")
+        return results
 
     def parse_results(self, html_content, query):
         results = []
@@ -322,18 +469,45 @@ class SearXNGCore:
 
     def init_default_engines(self):
         # Lista completa de Engines com URLs otimizadas
+        # Priorizando APIs oficiais quando disponíveis para resultados mais confiáveis
+        
+        # APIs Oficiais (prioridade máxima - não requerem scraping)
         self.engines = [
-            SearchEngine("Bing", "https://www.bing.com/search", "q", "general"),
+            # Wikipedia API Oficial - Muito confiável (fallback para scraping se bloqueado)
+            SearchEngine(
+                "Wikipedia", 
+                "https://en.wikipedia.org/w/index.php", 
+                "search", 
+                "science",
+                api_url="https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srprop=snippet|title&srlimit=10&srsearch="
+            ),
+            # GitHub API Oficial - Resultados precisos
+            SearchEngine(
+                "GitHub", 
+                "https://github.com/search", 
+                "q", 
+                "it",
+                api_url="https://api.github.com/search/repositories?q="
+            ),
+            # DuckDuckGo HTML (não tem API oficial, mas versão HTML é amigável)
             SearchEngine("DuckDuckGo", "https://html.duckduckgo.com/html", "q", "general"),
+            # Bing - Scraping com headers melhorados
+            SearchEngine("Bing", "https://www.bing.com/search", "q", "general"),
+            # Yandex - Scraping
             SearchEngine("Yandex", "https://yandex.ru/search/", "text", "general"),
+            # Brave Search - Scraping
             SearchEngine("Brave", "https://search.brave.com/search", "q", "general"),
-            SearchEngine("GitHub", "https://github.com/search", "q", "it"),
+            # GitLab - Scraping
             SearchEngine("GitLab", "https://gitlab.com/search", "search", "it"),
-            SearchEngine("Wikipedia", "https://en.wikipedia.org/w/index.php", "search", "science"),
+            # Reddit - old.reddit é mais amigável para scraping
             SearchEngine("Reddit", "https://old.reddit.com/search", "q", "social"),
+            # StackOverflow - Scraping
             SearchEngine("StackOverflow", "https://stackoverflow.com/search", "q", "it"),
+            # YouTube - Scraping (YouTube Data API v3 requer chave, usando scraping como fallback)
             SearchEngine("YouTube", "https://www.youtube.com/results", "search_query", "videos"),
+            # Dailymotion - Scraping
             SearchEngine("Dailymotion", "https://www.dailymotion.com/search", "query", "videos"),
+            # Pexels - Scraping (Pexels API existe mas requer chave)
             SearchEngine("Pexels", "https://www.pexels.com/search/", "q", "images"),
         ]
 
@@ -397,20 +571,31 @@ class SearXNGCore:
         if not query:
             return []
 
-        async with aiohttp.ClientSession() as session:
+        # Configurar Connector com limite de conexões simultâneas
+        connector = aiohttp.TCPConnector(
+            limit=MAX_CONCURRENT_CONNECTIONS,
+            limit_per_host=3,
+            ttl_dns_cache=300,
+            use_dns_cache=True,
+            ssl=False
+        )
+
+        async with aiohttp.ClientSession(connector=connector) as session:
             tasks = [eng.search(session, query) for eng in active_engines]
             results_list = await asyncio.gather(*tasks, return_exceptions=True)
-        
+
         all_results = []
         seen_urls = set()
-        
+
         for res in results_list:
             if isinstance(res, list):
                 for item in res:
-                    if item['url'] not in seen_urls:
+                    if isinstance(item, dict) and item.get('url') not in seen_urls:
                         seen_urls.add(item['url'])
                         all_results.append(item)
-        
+            elif isinstance(res, Exception):
+                print(f"[Erro inesperado] {type(res).__name__}: {str(res)[:100]}")
+
         return all_results
 
 
