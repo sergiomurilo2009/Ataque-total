@@ -12,13 +12,7 @@ import asyncio
 import json
 import argparse
 import sys
-import socket
-import os
 from pathlib import Path
-
-# Import aiohttp at module level (critical fix)
-import aiohttp
-from aiohttp import web
 
 # Import core components
 from core import SearchCore
@@ -160,6 +154,7 @@ async def async_main(args):
         app = create_app(core)
         
         # Get local IP for display
+        import socket
         local_ip = "127.0.0.1"
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -175,7 +170,8 @@ async def async_main(args):
         print(f"   🔓 Cache: {'DESATIVADO' if args.no_cache else 'ATIVADO'}")
         print(f"   🛑 Pressione Ctrl+C para parar\n")
         
-        # Use aiohttp to run server (already imported at module level)
+        # Use aiohttp to run server
+        from aiohttp import web
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, args.host, args.port)
