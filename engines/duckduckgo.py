@@ -65,34 +65,23 @@ class DuckDuckGoEngine(BaseEngine):
             soup = BeautifulSoup(html_content, 'lxml')
             results = []
 
-            # DuckDuckGo HTML uses div.results div.result for organic results
-            for item in soup.select('div.results div.result, div.result'):
+            # DuckDuckGo HTML uses div.result for organic results
+            for item in soup.select('div.result'):
                 title_elem = item.select_one('a.result__a')
                 url_elem = item.select_one('a.result__a')
                 snippet_elem = item.select_one('a.result__snippet')
-                
-                # Alternative snippet selector
-                if not snippet_elem:
-                    snippet_elem = item.select_one('div.result__body')
 
                 if title_elem and url_elem:
                     title = title_elem.get_text(strip=True)
-                    raw_url = url_elem.get('href', '')
+                    url = url_elem.get('href', '')
                     
-                    # Handle DuckDuckGo redirect URLs
-                    url = self._extract_real_url(raw_url)
-                    
-                    # Skip internal DDG links
-                    if not url or url.startswith('//') or 'duckduckgo.com' in url:
+                    # DuckDuckGo sometimes has redirect URLs
+                    if url.startswith('//') or 'duckduckgo.com' in url:
                         continue
                     
                     snippet = snippet_elem.get_text(strip=True) if snippet_elem else ''
-                    
-                    # Clean up snippet (remove extra spaces and newlines)
-                    if snippet:
-                        snippet = ' '.join(snippet.split())
 
-                    if url and url.startswith('http'):
+                    if url and 'http' in url:
                         results.append({
                             "title": title or "No title",
                             "url": url,
@@ -108,35 +97,6 @@ class DuckDuckGoEngine(BaseEngine):
         except Exception as e:
             print(f"[Parse Error] DuckDuckGo: {str(e)[:50]}")
             return []
-    
-    def _extract_real_url(self, ddg_url: str) -> str:
-        """Extract real URL from DuckDuckGo redirect links"""
-        if not ddg_url:
-            return ""
-        
-        # If it's already a real URL, return it
-        if ddg_url.startswith('http') and 'duckduckgo.com' not in ddg_url:
-            return ddg_url
-        
-        # DuckDuckGo usesudd parameter for real URLs
-        try:
-            from urllib.parse import parse_qs, urlparse
-            parsed = urlparse(ddg_url)
-            
-            # Check for uddg parameter (DDG's redirect parameter)
-            params = parse_qs(parsed.query)
-            if 'uddg' in params:
-                return params['uddg'][0]
-            
-            # Check for the URL itself in path
-            if parsed.path and parsed.path.startswith('/'):
-                # Sometimes the URL is encoded in the path
-                pass
-                
-        except Exception:
-            pass
-        
-        return ddg_url
 
     def _parse_ddg_regex(self, html_content: str, query: str) -> List[Dict[str, Any]]:
         """Fallback regex parser"""
