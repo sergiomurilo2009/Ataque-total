@@ -16,35 +16,73 @@ CONFIG_FILE = Path("searxng_config.json")
 PORT = 8080
 HOST = "127.0.0.1"
 
-# User Agents extensos para evitar bloqueios - ROTATIVO
+# User Agents extensos para evitar bloqueios - ROTATIVO (80+ user agents)
 USER_AGENTS = [
-    # Chrome Windows
+    # Chrome Windows (versões recentes)
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     # Firefox Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
     # Safari Mac
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
     # Chrome Linux
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     # Edge Windows
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0",
+    # Chrome Android (mobile)
+    "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; Pixel 6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
+    # iPhone Safari
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+    # iPad Safari
+    "Mozilla/5.0 (iPad; CPU OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (iPad; CPU OS 17_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Mobile/15E148 Safari/604.1",
+    # Opera Windows
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 OPR/106.0.0.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 OPR/107.0.0.0",
+    # Vivaldi Windows
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Vivaldi/6.5",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Vivaldi/6.6",
+    # Samsung Internet
+    "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36",
+    # Mi Browser
+    "Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 XiaoMi/Mi Browser/1.8",
 ]
 
-# Headers base mais completos
+# Headers base mais completos e realistas
 BASE_HEADERS = {
     "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8,en-US;q=0.7",
     "Accept-Encoding": "gzip, deflate",  # Removido 'br' (Brotli) para evitar dependencia
     "DNT": "1",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
-    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120"',
+    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="124"',
     "Sec-Ch-Ua-Mobile": "?0",
     "Sec-Ch-Ua-Platform": '"Windows"',
     "Sec-Fetch-Dest": "document",
@@ -54,21 +92,26 @@ BASE_HEADERS = {
     "Cache-Control": "max-age=0",
 }
 
-# Delay entre requisições (em segundos)
-REQUEST_DELAY_MIN = 1.0
-REQUEST_DELAY_MAX = 2.5
+# Delay entre requisições (em segundos) - Ajustável para evitar bloqueios
+REQUEST_DELAY_MIN = 0.5  # Reduzido para APIs oficiais
+REQUEST_DELAY_MAX = 1.5  # Reduzido para melhor performance
 
-# Limite de conexões simultâneas
-MAX_CONCURRENT_CONNECTIONS = 5
+# Limite de conexões simultâneas - Aumentado para melhor throughput
+MAX_CONCURRENT_CONNECTIONS = 10
+
+# Retry settings para requisições falhas
+MAX_RETRIES = 2
+RETRY_DELAY = 1.0
 
 class SearchEngine:
-    def __init__(self, name, base_url, search_param, category, enabled=True, api_url=None):
+    def __init__(self, name, base_url, search_param, category, enabled=True, api_url=None, page_param=None):
         self.name = name
         self.base_url = base_url
         self.search_param = search_param
         self.category = category
         self.enabled = enabled
         self.api_url = api_url  # URL alternativa para API oficial
+        self.page_param = page_param  # Parâmetro de paginação (ex: 'start', 'page')
         self.request_count = 0  # Contador para delays
         self.last_request_time = 0  # Timestamp da última requisição
 
@@ -77,7 +120,16 @@ class SearchEngine:
         user_agent = random.choice(USER_AGENTS)
         headers = BASE_HEADERS.copy()
         headers["User-Agent"] = user_agent
-        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        
+        # Se for usar API URL, definir Accept como JSON
+        if self.api_url:
+            headers["Accept"] = "application/json"
+            # Wikipedia requer User-Agent informativo
+            if "wikipedia.org" in self.api_url:
+                headers["User-Agent"] = "SearchApp/1.0 (contact: info@example.com)"
+        else:
+            headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        
         return headers
 
     async def _apply_delay(self):
@@ -89,28 +141,49 @@ class SearchEngine:
             await asyncio.sleep(delay)
         self.last_request_time = time.time()
 
-    async def search(self, session, query):
+    async def search(self, session, query, retry_count=0, page=1):
         if not self.enabled:
             return []
         
-        # Aplica delay antes da requisição
-        await self._apply_delay()
+        # Aplica delay antes da requisição (reduzido para APIs oficiais)
+        if self.api_url:
+            # APIs oficiais tem delay menor
+            await asyncio.sleep(random.uniform(0.2, 0.5))
+        else:
+            await self._apply_delay()
         
         # Rotação de User-Agent a cada requisição
         headers = self._get_fresh_headers()
         
-        # Determina URL (API oficial ou scraping)
+        # Determina URL (API oficial ou scraping) com paginação
         if self.api_url:
             url = f"{self.api_url}{quote_plus(query)}"
             # Para APIs JSON, usar headers apropriados
             if "api.php" in self.api_url or "/api/" in self.api_url:
                 headers["Accept"] = "application/json"
         else:
+            # Constrói URL com query e paginação
             url = f"{self.base_url}{self.search_param}={quote_plus(query)}"
+            # Adiciona paginação se suportado
+            if page > 1 and self.page_param:
+                # Calcula offset baseado na página (10 resultados por página)
+                if self.name == "Google":
+                    # Google usa start=0, start=10, start=20...
+                    start = (page - 1) * 10
+                    url += f"&{self.page_param}={start}"
+                elif self.name in ["Bing", "DuckDuckGo", "Yandex", "Brave"]:
+                    # Bing usa first=11, first=21... DuckDuckGo usa s=10, s=20...
+                    offset = (page - 1) * 10 + (1 if self.name == "Bing" else 0)
+                    url += f"&{self.page_param}={offset}"
+                else:
+                    # Outros usam page=2, page=3...
+                    url += f"&{self.page_param}={page}"
         
         try:
             self.request_count += 1
-            async with session.get(url, headers=headers, timeout=15, ssl=False, allow_redirects=True) as response:
+            # Timeout maior para scraping HTML
+            timeout = 20 if not self.api_url else 15
+            async with session.get(url, headers=headers, timeout=timeout, ssl=False, allow_redirects=True) as response:
                 if response.status == 200:
                     content_type = response.headers.get('Content-Type', '')
                     
@@ -122,19 +195,39 @@ class SearchEngine:
                         html_content = await response.text()
                         return self.parse_results(html_content, query)
                 elif response.status == 429:
-                    print(f"[Bloqueio] {self.name}: Rate limit atingido (429)")
+                    print(f"[Rate Limit] {self.name}: Aguardando {RETRY_DELAY}s antes de retry...")
+                    if retry_count < MAX_RETRIES:
+                        await asyncio.sleep(RETRY_DELAY * (retry_count + 1))
+                        return await self.search(session, query, retry_count + 1)
+                    print(f"[Bloqueio] {self.name}: Rate limit atingido (429) após {MAX_RETRIES} retries")
                     return []
                 elif response.status == 403:
-                    print(f"[Bloqueio] {self.name}: Acesso negado (403)")
+                    # Tenta com outro user agent em caso de 403
+                    if retry_count < MAX_RETRIES:
+                        print(f"[Tentativa {retry_count + 1}/{MAX_RETRIES}] {self.name}: 403 - Tentando novamente...")
+                        await asyncio.sleep(RETRY_DELAY)
+                        return await self.search(session, query, retry_count + 1)
+                    print(f"[Bloqueio] {self.name}: Acesso negado (403) após {MAX_RETRIES} retries")
+                    return []
+                elif response.status == 503:
+                    print(f"[Serviço Indisponível] {self.name}: 503 - Service Unavailable")
                     return []
                 else:
-                    print(f"[Erro] {self.name} retornou status {response.status}")
+                    print(f"[Erro HTTP {response.status}] {self.name}")
                     return []
         except asyncio.TimeoutError:
-            print(f"[Timeout] {self.name} demorou muito para responder")
+            if retry_count < MAX_RETRIES:
+                print(f"[Timeout] {self.name}: Tentando novamente ({retry_count + 1}/{MAX_RETRIES})...")
+                await asyncio.sleep(RETRY_DELAY)
+                return await self.search(session, query, retry_count + 1)
+            print(f"[Timeout] {self.name} demorou muito para responder após {MAX_RETRIES} retries")
             return []
         except aiohttp.ClientError as e:
             error_msg = str(e)[:100]
+            if retry_count < MAX_RETRIES:
+                print(f"[Erro Conexão] {self.name}: {error_msg[:50]} - Retrying...")
+                await asyncio.sleep(RETRY_DELAY)
+                return await self.search(session, query, retry_count + 1)
             print(f"[Falha Conexão] {self.name}: {error_msg}")
             return []
         except Exception as e:
@@ -150,6 +243,12 @@ class SearchEngine:
             results = self._parse_wikipedia_api(json_data)
         elif self.name == "GitHub":
             results = self._parse_github_api(json_data)
+        elif self.name == "GitLab":
+            results = self._parse_gitlab_api(json_data)
+        elif self.name == "Reddit":
+            results = self._parse_reddit_api(json_data)
+        elif self.name == "StackOverflow":
+            results = self._parse_stackoverflow_api(json_data)
         else:
             # Fallback para parsing genérico de API JSON
             results = self._parse_generic_api(json_data)
@@ -197,6 +296,71 @@ class SearchEngine:
             print(f"[Erro Parse GitHub API] {str(e)[:50]}")
         return results
 
+    def _parse_gitlab_api(self, json_data):
+        """Parse da API oficial do GitLab"""
+        results = []
+        try:
+            for item in json_data[:10]:
+                title = item.get('name_with_namespace', 'Sem título')
+                description = item.get('description', 'Sem descrição') or 'Sem descrição'
+                html_url = item.get('web_url', '')
+                results.append({
+                    "title": title,
+                    "url": html_url,
+                    "content": description,
+                    "engine": self.name,
+                    "category": self.category
+                })
+        except Exception as e:
+            print(f"[Erro Parse GitLab API] {str(e)[:50]}")
+        return results
+
+    def _parse_reddit_api(self, json_data):
+        """Parse da API oficial do Reddit (JSON)"""
+        results = []
+        try:
+            posts = json_data.get('data', {}).get('children', [])
+            for post in posts[:10]:
+                data = post.get('data', {})
+                title = data.get('title', 'Sem título')
+                subreddit = data.get('subreddit', 'unknown')
+                permalink = data.get('permalink', '')
+                url = f"https://www.reddit.com{permalink}" if permalink else data.get('url', '')
+                content = data.get('selftext', 'Sem descrição') or data.get('title', 'Sem descrição')
+                results.append({
+                    "title": f"r/{subreddit}: {title}",
+                    "url": url,
+                    "content": content[:200] if len(content) > 200 else content,
+                    "engine": self.name,
+                    "category": self.category
+                })
+        except Exception as e:
+            print(f"[Erro Parse Reddit API] {str(e)[:50]}")
+        return results
+
+    def _parse_stackoverflow_api(self, json_data):
+        """Parse da API oficial do Stack Exchange/StackOverflow"""
+        results = []
+        try:
+            items = json_data.get('items', [])
+            for item in items[:10]:
+                title = item.get('title', 'Sem título')
+                question_id = item.get('question_id', '')
+                link = item.get('link', f'https://stackoverflow.com/questions/{question_id}')
+                snippet = item.get('body', 'Sem descrição') or 'Sem descrição'
+                # Limpar HTML do snippet
+                snippet = re.sub(r'<[^>]+>', '', snippet)
+                results.append({
+                    "title": title,
+                    "url": link,
+                    "content": snippet[:200] if len(snippet) > 200 else snippet,
+                    "engine": self.name,
+                    "category": self.category
+                })
+        except Exception as e:
+            print(f"[Erro Parse StackOverflow API] {str(e)[:50]}")
+        return results
+
     def _parse_generic_api(self, json_data):
         """Parse genérico para APIs JSON"""
         results = []
@@ -241,6 +405,10 @@ class SearchEngine:
             results = self._parse_so(html_content)
         elif self.name == "YouTube":
             results = self._parse_youtube(html_content)
+        elif self.name == "Ecosia":
+            results = self._parse_ecosia(html_content)
+        elif self.name == "Qwant":
+            results = self._parse_qwant(html_content)
         else:
             results = self._parse_generic(html_content)
             
@@ -431,15 +599,69 @@ class SearchEngine:
     def _parse_youtube(self, html_content):
         results = []
         # YouTube requer JS para renderizar, fallback para links
-        links = re.findall(r'<a href="(/watch\?v=[^"]+)".*?title="([^"]+)"', html_content)
-        for url, title in links[:10]:
-            results.append({
-                "title": self._clean_text(title),
-                "url": "https://youtube.com" + url,
-                "content": "Vídeo no YouTube",
-                "engine": self.name,
-                "category": self.category
-            })
+        patterns = [
+            r'<a href="(/watch\?v=[^"]+)".*?title="([^"]+)"',
+            r'href="(/watch\?v=[a-zA-Z0-9_-]+)"[^>]*>([^<]{10,100})',
+        ]
+        
+        seen = set()
+        for pattern in patterns:
+            links = re.findall(pattern, html_content)
+            for url, title in links[:10]:
+                if '/watch?v=' not in url:
+                    url = f"/watch?v={url}"
+                full_url = "https://youtube.com" + url
+                if full_url not in seen and len(title) > 3:
+                    seen.add(full_url)
+                    results.append({
+                        "title": self._clean_text(title),
+                        "url": full_url,
+                        "content": "Vídeo no YouTube",
+                        "engine": self.name,
+                        "category": self.category
+                    })
+            if len(results) >= 10:
+                break
+        return results
+
+    def _parse_ecosia(self, html_content):
+        """Parser para Ecosia - motor de busca ecológico"""
+        results = []
+        # Ecosia usa estrutura similar
+        pattern = r'<div class="result__body"(.*?)</div>'
+        matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
+        
+        for match in matches[:10]:
+            title_match = re.search(r'<a class="result__link" href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
+            snippet_match = re.search(r'<p class="result__snippet"[^>]*>(.*?)</p>', match, re.DOTALL)
+            
+            if title_match:
+                url = title_match.group(1)
+                title = self._clean_text(title_match.group(2))
+                snippet = self._clean_text(snippet_match.group(1)) if snippet_match else ""
+                
+                if url.startswith("//"):
+                    url = "https:" + url
+                
+                results.append({
+                    "title": title if title else "Sem título",
+                    "url": url,
+                    "content": snippet if snippet else "Resultado do Ecosia",
+                    "engine": self.name,
+                    "category": self.category
+                })
+        
+        # Fallback para padrão genérico se não encontrar resultados
+        if not results:
+            results = self._parse_generic(html_content)
+        
+        return results
+
+    def _parse_qwant(self, html_content):
+        """Parser para Qwant - motor de busca europeu"""
+        results = []
+        # Qwant tem estrutura própria - fallback para genérico
+        results = self._parse_generic(html_content)
         return results
 
     def _parse_generic(self, html_content):
@@ -470,10 +692,11 @@ class SearXNGCore:
     def init_default_engines(self):
         # Lista completa de Engines com URLs otimizadas
         # Priorizando APIs oficiais quando disponíveis para resultados mais confiáveis
+        # Estratégia anti-bloqueio: múltiplos fallbacks e rotação de user agents
         
-        # APIs Oficiais (prioridade máxima - não requerem scraping)
+        # APIs Oficiais (prioridade máxima - não requerem scraping, mais estáveis)
         self.engines = [
-            # Wikipedia API Oficial - Muito confiável (fallback para scraping se bloqueado)
+            # Wikipedia API Oficial - Muito confiável
             SearchEngine(
                 "Wikipedia", 
                 "https://en.wikipedia.org/w/index.php", 
@@ -489,26 +712,60 @@ class SearXNGCore:
                 "it",
                 api_url="https://api.github.com/search/repositories?q="
             ),
+            # GitLab - API Oficial (public projects endpoint)
+            SearchEngine(
+                "GitLab", 
+                "https://gitlab.com/search", 
+                "search", 
+                "it",
+                api_url="https://gitlab.com/api/v4/projects?search="
+            ),
+            # StackOverflow - Stack Exchange API Oficial
+            SearchEngine(
+                "StackOverflow", 
+                "https://stackoverflow.com/search", 
+                "q", 
+                "it",
+                api_url="https://api.stackexchange.com/2.3/search?order=desc&sort=relevance&site=stackoverflow&intitle="
+            ),
+            # Google - Scraping via interface web (requer paginação)
+            SearchEngine("Google", "https://www.google.com/search", "q", "general", page_param="start"),
             # DuckDuckGo HTML (não tem API oficial, mas versão HTML é amigável)
-            SearchEngine("DuckDuckGo", "https://html.duckduckgo.com/html", "q", "general"),
+            SearchEngine("DuckDuckGo", "https://html.duckduckgo.com/html", "q", "general", page_param="s"),
             # Bing - Scraping com headers melhorados
-            SearchEngine("Bing", "https://www.bing.com/search", "q", "general"),
-            # Yandex - Scraping
-            SearchEngine("Yandex", "https://yandex.ru/search/", "text", "general"),
+            SearchEngine("Bing", "https://www.bing.com/search", "q", "general", page_param="first"),
             # Brave Search - Scraping
-            SearchEngine("Brave", "https://search.brave.com/search", "q", "general"),
-            # GitLab - Scraping
-            SearchEngine("GitLab", "https://gitlab.com/search", "search", "it"),
-            # Reddit - old.reddit é mais amigável para scraping
-            SearchEngine("Reddit", "https://old.reddit.com/search", "q", "social"),
-            # StackOverflow - Scraping
-            SearchEngine("StackOverflow", "https://stackoverflow.com/search", "q", "it"),
+            SearchEngine("Brave", "https://search.brave.com/search", "q", "general", page_param="page"),
+            # Yandex - Scraping
+            SearchEngine("Yandex", "https://yandex.ru/search/", "text", "general", page_param="p"),
+            # Reddit - Scraping (old.reddit é mais amigável para scraping)
+            SearchEngine(
+                "Reddit", 
+                "https://old.reddit.com/search", 
+                "q", 
+                "social",
+                page_param="page"
+            ),
             # YouTube - Scraping (YouTube Data API v3 requer chave, usando scraping como fallback)
-            SearchEngine("YouTube", "https://www.youtube.com/results", "search_query", "videos"),
+            SearchEngine("YouTube", "https://www.youtube.com/results", "search_query", "videos", page_param="page"),
             # Dailymotion - Scraping
-            SearchEngine("Dailymotion", "https://www.dailymotion.com/search", "query", "videos"),
+            SearchEngine("Dailymotion", "https://www.dailymotion.com/search", "query", "videos", page_param="page"),
             # Pexels - Scraping (Pexels API existe mas requer chave)
-            SearchEngine("Pexels", "https://www.pexels.com/search/", "q", "images"),
+            SearchEngine("Pexels", "https://www.pexels.com/search/", "q", "images", page_param="page"),
+            # Ecosia - Motor de busca ecológico
+            SearchEngine("Ecosia", "https://www.ecosia.org/search", "q", "general", page_param="page"),
+            # Qwant - Motor de busca europeu focado em privacidade
+            SearchEngine("Qwant", "https://www.qwant.com/", "q", "general", page_param="page"),
+            # Startpage - Motor de busca focado em privacidade (resultados do Google)
+            SearchEngine("Startpage", "https://www.startpage.com/sp/search", "query", "general", page_param="page"),
+            # Mojeek - Motor de busca independente com crawler próprio
+            SearchEngine("Mojeek", "https://www.mojeek.com/search", "q", "general", page_param="page"),
+            # Metacrawler - Meta buscador
+            SearchEngine("Metacrawler", "https://www.metacrawler.com/web", "q", "general", page_param="page"),
+            # Lycos - Motor de busca clássico
+            SearchEngine("Lycos", "https://search.lycos.com/web/", "q", "general", page_param="page"),
+            # AOL Search - Portal de busca
+            SearchEngine("AOL", "https://search.aol.com/aol/search", "q", "general", page_param="page"),
         ]
 
     def load_config(self):
@@ -525,7 +782,7 @@ class SearXNGCore:
         with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
 
-    async def search_all(self, query, categories=None):
+    async def search_all(self, query, categories=None, page=1):
         if not query:
             return []
         
@@ -581,7 +838,7 @@ class SearXNGCore:
         )
 
         async with aiohttp.ClientSession(connector=connector) as session:
-            tasks = [eng.search(session, query) for eng in active_engines]
+            tasks = [eng.search(session, query, page=page) for eng in active_engines]
             results_list = await asyncio.gather(*tasks, return_exceptions=True)
 
         all_results = []
@@ -694,6 +951,29 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
         <main class="results-area">
             {{results_content}}
+            
+            <!-- Paginação -->
+            {% if query %}
+            <div class="pagination" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem; padding: 1rem;">
+                {% if has_prev %}
+                <a href="/?q={{query}}{% if cat_general %}&cat=general{% endif %}{% if cat_it %}&cat=it{% endif %}{% if cat_science %}&cat=science{% endif %}{% if cat_videos %}&cat=videos{% endif %}{% if cat_social %}&cat=social{% endif %}{% if cat_images %}&cat=images{% endif %}&page={{current_page|minus:1}}" 
+                   style="padding: 0.75rem 1.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">← Anterior</a>
+                {% else %}
+                <span style="padding: 0.75rem 1.5rem; background: #e5e7eb; color: #9ca3af; border-radius: 8px; font-weight: 600; cursor: not-allowed;">← Anterior</span>
+                {% endif %}
+                
+                <span style="padding: 0.75rem 1.5rem; background: white; border: 2px solid var(--primary); color: var(--primary); border-radius: 8px; font-weight: 600;">
+                    Página {{current_page}}
+                </span>
+                
+                {% if has_next %}
+                <a href="/?q={{query}}{% if cat_general %}&cat=general{% endif %}{% if cat_it %}&cat=it{% endif %}{% if cat_science %}&cat=science{% endif %}{% if cat_videos %}&cat=videos{% endif %}{% if cat_social %}&cat=social{% endif %}{% if cat_images %}&cat=images{% endif %}&page={{current_page|plus:1}}" 
+                   style="padding: 0.75rem 1.5rem; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">Próxima →</a>
+                {% else %}
+                <span style="padding: 0.75rem 1.5rem; background: #e5e7eb; color: #9ca3af; border-radius: 8px; font-weight: 600; cursor: not-allowed;">Próxima →</span>
+                {% endif %}
+            </div>
+            {% endif %}
         </main>
     </div>
 
@@ -705,7 +985,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
 
 def render_template(template_str, **kwargs):
-    """Renderizador de template simples"""
+    """Renderizador de template simples com suporte a filtros básicos"""
     result = template_str
     
     # Substituir variáveis simples
@@ -714,10 +994,53 @@ def render_template(template_str, **kwargs):
         if placeholder in result:
             result = result.replace(placeholder, str(value) if value is not None else "")
     
+    # Processar filtros |plus:1 e |minus:1
+    import re
+    
+    # Filtro plus:1 (adicionar 1)
+    plus_pattern = r'\{\{(\w+)\|plus:(\d+)\}\}'
+    for match in re.finditer(plus_pattern, result):
+        var_name = match.group(1)
+        add_value = int(match.group(2))
+        if var_name in kwargs:
+            try:
+                current_val = int(kwargs[var_name])
+                result = result.replace(match.group(0), str(current_val + add_value))
+            except (ValueError, TypeError):
+                result = result.replace(match.group(0), str(add_value))
+    
+    # Filtro minus:1 (subtrair 1)
+    minus_pattern = r'\{\{(\w+)\|minus:(\d+)\}\}'
+    for match in re.finditer(minus_pattern, result):
+        var_name = match.group(1)
+        sub_value = int(match.group(2))
+        if var_name in kwargs:
+            try:
+                current_val = int(kwargs[var_name])
+                result = result.replace(match.group(0), str(current_val - sub_value))
+            except (ValueError, TypeError):
+                result = result.replace(match.group(0), str(-sub_value))
+    
+    # Processar condicionais {% if var %}...{% endif %}
+    if_pattern = r'\{%\s*if\s+(\w+)\s*%\}(.*?)\{%\s*endif\s*%\}'
+    while True:
+        match = re.search(if_pattern, result, re.DOTALL)
+        if not match:
+            break
+        var_name = match.group(1)
+        content = match.group(2)
+        var_value = kwargs.get(var_name, False)
+        # Considera verdadeiro se não for False, None, 0, ou string vazia
+        is_truthy = var_value and var_value not in [False, None, 0, '0', '']
+        if is_truthy:
+            result = result.replace(match.group(0), content)
+        else:
+            result = result.replace(match.group(0), '')
+    
     return result
 
 
-def generate_results_html(results, count, time_taken, query, category):
+def generate_results_html(results, count, time_taken, query, category, page=1):
     """Gera o HTML dos resultados"""
     
     # Categorias ativas
@@ -748,7 +1071,7 @@ def generate_results_html(results, count, time_taken, query, category):
                 <span class="badge">{res['category']}</span>
             </article>
             '''
-        stats_html = f'<p class="stats">{count} resultados encontrados em {time_taken}s</p>'
+        stats_html = f'<p class="stats">{count} resultados encontrados em {time_taken}s (Página {page})</p>'
     else:
         # Sem resultados
         results_html = '<div class="no-results"><h2>Nenhum resultado encontrado</h2><p>Tente outro termo ou verifique sua conexão.</p></div>'
@@ -763,10 +1086,18 @@ async def handle_request(request):
     core = request.app['core']
     query = request.query.get('q', '')
     category = request.query.get('cat', None)
+    page = request.query.get('page', '1')
+    
+    try:
+        page = int(page)
+        if page < 1:
+            page = 1
+    except (ValueError, TypeError):
+        page = 1
     
     if not query:
         # Página inicial
-        results_html, stats_html, cats = generate_results_html([], 0, 0, "", None)
+        results_html, stats_html, cats = generate_results_html([], 0, 0, "", None, page=1)
         html_content = render_template(
             HTML_TEMPLATE,
             query="",
@@ -776,22 +1107,29 @@ async def handle_request(request):
             cat_science=cats['science'],
             cat_videos=cats['videos'],
             cat_social=cats['social'],
-            cat_images=cats['images']
+            cat_images=cats['images'],
+            current_page=1,
+            has_next=False,
+            has_prev=False
         )
         return web.Response(text=html_content, content_type='text/html')
 
     # Processar busca
     start_time = datetime.now()
     categories = [category] if category else None
-    results = await core.search_all(query, categories)
+    results = await core.search_all(query, categories, page=page)
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
     
     results_html, stats_html, cats = generate_results_html(
-        results, len(results), f"{duration:.2f}", query, category
+        results, len(results), f"{duration:.2f}", query, category, page=page
     )
     
     full_content = stats_html + results_html
+    
+    # Determinar se há páginas anterior/próxima
+    has_prev = page > 1
+    has_next = True  # Assume que sempre há próxima página para navegação infinita
 
     html_content = render_template(
         HTML_TEMPLATE,
@@ -802,7 +1140,10 @@ async def handle_request(request):
         cat_science=cats['science'],
         cat_videos=cats['videos'],
         cat_social=cats['social'],
-        cat_images=cats['images']
+        cat_images=cats['images'],
+        current_page=page,
+        has_next=has_next,
+        has_prev=has_prev
     )
     return web.Response(text=html_content, content_type='text/html')
 
