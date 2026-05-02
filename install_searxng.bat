@@ -26,6 +26,13 @@ python -m pip install --upgrade pip --quiet --no-warn-script-location
 echo [OK] Pip atualizado
 echo.
 
+:: Limpar cache Python antigo
+echo [INFO] Limpando cache...
+if exist "__pycache__" rmdir /s /q "__pycache__"
+if exist "search_cache.db" del /q "search_cache.db"
+echo [OK] Cache limpo
+echo.
+
 :: Instalar dependencias rapidamente sem cache
 echo [INFO] Instalando dependencias necessarias...
 echo [INFO] Isso pode levar alguns segundos na primeira vez...

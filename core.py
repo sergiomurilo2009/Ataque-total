@@ -192,25 +192,42 @@ class SearchCore:
     async def _search_all_engines(self, query: str, engines: List[str], 
                                   page: int = 1) -> List[Dict[str, Any]]:
         """Search across multiple engines concurrently"""
-        from engines.bing import BingEngine
+        import importlib
         
-        # Map engine names to instances (expand as needed)
-        engine_instances = {
-            'Bing': BingEngine(enabled=True),
-            # Add more engines as they are implemented
+        # Map engine names to their module classes
+        engine_map = {
+            'Bing': ('engines.bing', 'BingEngine'),
+            'DuckDuckGo': ('engines.duckduckgo', 'DuckDuckGoEngine'),
+            'Yandex': ('engines.yandex', 'YandexEngine'),
+            'Qwant': ('engines.qwant', 'QwantEngine'),
+            'Startpage': ('engines.startpage', 'StartpageEngine'),
+            'Wikipedia': ('engines.wikipedia', 'WikipediaEngine'),
+            'GitHub': ('engines.github', 'GitHubEngine'),
+            'GitLab': ('engines.gitlab', 'GitLabEngine'),
+            'StackOverflow': ('engines.stackoverflow', 'StackOverflowEngine'),
+            'Reddit': ('engines.reddit', 'RedditEngine'),
+            'YouTube': ('engines.youtube', 'YouTubeEngine'),
         }
         
         all_results = []
         
-        # Create aiohttp session
-        connector = aiohttp.TCPConnector(limit=10, ssl=False)
+        # Create aiohttp session with proper limits
+        max_connections = self.config.get('limits', {}).get('max_concurrent_connections', 10)
+        connector = aiohttp.TCPConnector(limit=max_connections, ssl=False)
         async with aiohttp.ClientSession(connector=connector) as session:
             # Create tasks for each engine
             tasks = []
             for engine_name in engines:
-                if engine_name in engine_instances:
-                    engine = engine_instances[engine_name]
-                    tasks.append(engine.search(session, query, page))
+                if engine_name in engine_map:
+                    try:
+                        module_name, class_name = engine_map[engine_name]
+                        module = importlib.import_module(module_name)
+                        engine_class = getattr(module, class_name)
+                        engine_config = self.engine_configs.get(engine_name, {})
+                        engine = engine_class(enabled=engine_config.get('enabled', True))
+                        tasks.append(engine.search(session, query, page))
+                    except Exception as e:
+                        print(f"[Error] Failed to load engine {engine_name}: {e}")
             
             if tasks:
                 # Execute with timeout
