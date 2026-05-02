@@ -305,6 +305,9 @@ class SearchEngine:
                 elif response.status == 503:
                     print(f"[Serviço Indisponível] {self.name}: 503 - Service Unavailable")
                     return []
+                elif response.status == 400:
+                    print(f"[Erro HTTP 400] {self.name} - Bad Request (possível bloqueio ou parâmetros inválidos)")
+                    return []
                 else:
                     print(f"[Erro HTTP {response.status}] {self.name}")
                     return []
@@ -353,7 +356,7 @@ class SearchEngine:
         results = []
         try:
             search_results = json_data.get('query', {}).get('search', [])
-            for item in search_results[:10]:
+            for item in search_results:  # Sem limite - retorna todos os resultados
                 title = item.get('title', 'Sem título')
                 snippet = item.get('snippet', 'Sem descrição')
                 # Limpar HTML do snippet da Wikipedia
@@ -374,7 +377,7 @@ class SearchEngine:
         results = []
         try:
             items = json_data.get('items', [])
-            for item in items[:10]:
+            for item in items:  # Sem limite - retorna todos os resultados
                 title = item.get('full_name', 'Sem título')
                 description = item.get('description', 'Sem descrição') or 'Sem descrição'
                 html_url = item.get('html_url', '')
@@ -393,7 +396,7 @@ class SearchEngine:
         """Parse da API oficial do GitLab"""
         results = []
         try:
-            for item in json_data[:10]:
+            for item in json_data:  # Sem limite - retorna todos os resultados
                 title = item.get('name_with_namespace', 'Sem título')
                 description = item.get('description', 'Sem descrição') or 'Sem descrição'
                 html_url = item.get('web_url', '')
@@ -413,7 +416,7 @@ class SearchEngine:
         results = []
         try:
             posts = json_data.get('data', {}).get('children', [])
-            for post in posts[:10]:
+            for post in posts:  # Sem limite - retorna todos os resultados
                 data = post.get('data', {})
                 title = data.get('title', 'Sem título')
                 subreddit = data.get('subreddit', 'unknown')
@@ -436,7 +439,7 @@ class SearchEngine:
         results = []
         try:
             items = json_data.get('items', [])
-            for item in items[:10]:
+            for item in items:  # Sem limite - retorna todos os resultados
                 title = item.get('title', 'Sem título')
                 question_id = item.get('question_id', '')
                 link = item.get('link', f'https://stackoverflow.com/questions/{question_id}')
@@ -462,7 +465,7 @@ class SearchEngine:
             if isinstance(json_data, dict):
                 for key, value in json_data.items():
                     if isinstance(value, list):
-                        for item in value[:10]:
+                        for item in value:  # Sem limite - retorna todos os resultados
                             if isinstance(item, dict):
                                 title = item.get('title', item.get('name', 'Resultado'))
                                 url = item.get('url', item.get('link', item.get('html_url', '#')))
@@ -521,7 +524,7 @@ class SearchEngine:
         pattern = r'<li class="b_algo"(.*?)</li>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:  # Limita a 10 resultados por engine
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<h2.*?><a href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
             snippet_match = re.search(r'<p class="b_caption"[^>]*>(.*?)</p>', match, re.DOTALL)
             
@@ -598,7 +601,7 @@ class SearchEngine:
         pattern = r'<li class="serp-item"(.*?)</li>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<a class="OrganicTitle-LinkText"[^>]*href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
             snippet_match = re.search(r'<span class="OrganicText-Content"[^>]*>(.*?)</span>', match, re.DOTALL)
             
@@ -626,7 +629,7 @@ class SearchEngine:
         pattern = r'<li class="repo-list-item"(.*?)</li>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<a href="([^"]+)" class="v-align-middle">.*?<span>(.*?)</span>', match, re.DOTALL)
             snippet_match = re.search(r'<p class="col-9 color-fg-muted my-1 pr-4">(.*?)</p>', match, re.DOTALL)
             
@@ -649,7 +652,7 @@ class SearchEngine:
         pattern = r'<div class="mw-search-result-heading"(.*?)</div>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<a href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
             if title_match:
                 url = "https://wikipedia.org" + title_match.group(1)
@@ -672,7 +675,7 @@ class SearchEngine:
         if not matches:
             # Fallback para links genéricos do reddit
             links = re.findall(r'<a href="(https://www\.reddit\.com/r/[^"]+)".*?>([^<]{20,100})</a>', html_content)
-            for url, title in links[:10]:
+            for url, title in links:  # Sem limite - retorna todos os resultados
                 results.append({
                     "title": self._clean_text(title),
                     "url": url,
@@ -681,7 +684,7 @@ class SearchEngine:
                     "category": self.category
                 })
         else:
-            for match in matches[:10]:
+            for match in matches:  # Sem limite - retorna todos os resultados
                 title_match = re.search(r'slot="title".*?>(.*?)<', match, re.DOTALL)
                 link_match = re.search(r'href="([^"]+)"', match)
                 if title_match and link_match:
@@ -699,7 +702,7 @@ class SearchEngine:
         pattern = r'<div class="question-summary"(.*?)</div>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<a class="question-hyperlink" href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
             if title_match:
                 url = "https://stackoverflow.com" + title_match.group(1)
@@ -731,13 +734,9 @@ class SearchEngine:
         ]
         
         for pattern in patterns:
-            if len(results) >= 10:
-                break
             try:
                 links = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
-                for match in links:
-                    if len(results) >= 10:
-                        break
+                for match in links:  # Sem limite - retorna todos os resultados
                     url = match[0]
                     title = match[1] if len(match) > 1 else ""
                     
@@ -775,7 +774,7 @@ class SearchEngine:
         pattern = r'<div class="result__body"(.*?)</div>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
+        for match in matches:  # Sem limite - retorna todos os resultados
             title_match = re.search(r'<a class="result__link" href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
             snippet_match = re.search(r'<p class="result__snippet"[^>]*>(.*?)</p>', match, re.DOTALL)
             
@@ -847,9 +846,6 @@ class SearchEngine:
                     "engine": self.name,
                     "category": self.category
                 })
-            
-            if len(results) >= 10:
-                break
         
         return results
 
@@ -911,8 +907,8 @@ class SearXNGCore:
             SearchEngine("Bing", "https://www.bing.com/search?q=", "q", "general", page_param="first"),
             # Brave Search - DESABILITADO: Proteções anti-bot rigorosas (429/403)
             SearchEngine("Brave", "https://search.brave.com/search?q=", "q", "general", page_param="page", enabled=False),
-            # Yandex - Scraping
-            SearchEngine("Yandex", "https://yandex.ru/search/?text=", "text", "general", page_param="p"),
+            # Yandex - DESABILITADO: Requer captcha/verificação humana (redireciona para /showcaptcha)
+            SearchEngine("Yandex", "https://yandex.ru/search/?text=", "text", "general", page_param="p", enabled=False),
             # Reddit - DESABILITADO: Requer JavaScript/bot detection (403)
             SearchEngine(
                 "Reddit", 
@@ -974,7 +970,6 @@ class SearXNGCore:
                 "!google": "Bing",
                 "!bing": "Bing",
                 "!ddg": "DuckDuckGo",
-                "!yandex": "Yandex",
                 "!wiki": "Wikipedia",
                 "!gh": "GitHub",
                 "!github": "GitHub",
@@ -1103,7 +1098,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
     <div class="search-container">
         <form class="search-box" action="/" method="GET">
-            <input type="text" name="q" class="search-input" placeholder="Pesquise... (use !yandex, !wiki para bangs)" value="{{query}}" autofocus>
+            <input type="text" name="q" class="search-input" placeholder="Pesquise... (use !wiki, !github para bangs)" value="{{query}}" autofocus>
             <button type="submit" class="search-btn">Buscar</button>
         </form>
     </div>
@@ -1121,7 +1116,7 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
             </ul>
             <div style="margin-top: 2rem; font-size: 0.8rem; color: #666;">
                 <strong>Bangs Disponíveis:</strong><br>
-                !yandex, !bing, !ddg, !wiki, !github, !yt, !reddit
+                !bing, !ddg, !wiki, !github, !yt, !reddit
             </div>
         </aside>
 
@@ -1350,7 +1345,6 @@ async def main_server():
         print(f"   {status} {eng.name} ({eng.category})")
     print(f"{'='*60}")
     print(f"💡 Dicas:")
-    print(f"   • Use !yandex termo para buscar apenas no Yandex")
     print(f"   • Use !wiki python para buscar na Wikipedia")
     print(f"   • Use !github rust para buscar no GitHub")
     print(f"   • Pressione Ctrl+C para parar o servidor")
@@ -1384,14 +1378,14 @@ def main():
         core = SearXNGCore()
         results = asyncio.run(core.search_all(args.search))
         print(f"\n📊 {len(results)} resultados encontrados:\n")
-        for i, res in enumerate(results[:10], 1):
+        for i, res in enumerate(results, 1):  # Sem limite - mostra todos os resultados
             print(f"{i}. [{res['engine']}] {res['title']}")
             print(f"   {res['url']}")
             print(f"   {res['content'][:100]}...\n")
     elif args.demo:
         print("🧪 Executando demonstração do SearXNG Windows...\n")
         core = SearXNGCore()
-        test_queries = ["python tutorial", "!yandex linux", "!wiki artificial intelligence"]
+        test_queries = ["python tutorial", "!wiki artificial intelligence", "!github python"]
         for q in test_queries:
             print(f"🔍 Buscando por: {q}")
             results = asyncio.run(core.search_all(q))
