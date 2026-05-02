@@ -51,8 +51,8 @@ Supported Bangs:
                        help='Output results as JSON')
     parser.add_argument('--server', '-s', action='store_true',
                        help='Start web server')
-    parser.add_argument('--host', default='127.0.0.1',
-                       help='Server host (default: 127.0.0.1)')
+    parser.add_argument('--host', default='0.0.0.0',
+                       help='Server host (default: 0.0.0.0)')
     parser.add_argument('--port', '-p', type=int, default=8080,
                        help='Server port (default: 8080)')
     parser.add_argument('--config', default='config/default.json',
@@ -86,6 +86,14 @@ async def run_cli_search(core: SearchCore, query: str, args):
         if result.get('error'):
             print(f"Error: {result['error']}")
             return
+        
+        # Check for missing fields
+        if 'total_results' not in result:
+            result['total_results'] = len(result.get('results', []))
+        if 'engines_used' not in result:
+            result['engines_used'] = list(set(r.get('engine', 'Unknown') for r in result.get('results', [])))
+        if 'search_time' not in result:
+            result['search_time'] = 0
         
         print(f"\n{'='*60}")
         print(f"Query: {result.get('original_query', query)}")
@@ -144,8 +152,21 @@ async def async_main(args):
     if args.server:
         # Start web server
         app = create_app(core)
+        
+        # Get local IP for display
+        import socket
+        local_ip = "127.0.0.1"
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+        except:
+            pass
+        
         print(f"\n🚀 Starting Ataque-total Search Server")
         print(f"   📍 URL Local: http://127.0.0.1:{args.port}")
+        print(f"   🌐 URL Rede: http://{local_ip}:{args.port}")
         print(f"   🔓 Cache: {'DESATIVADO' if args.no_cache else 'ATIVADO'}")
         print(f"   🛑 Pressione Ctrl+C para parar\n")
         
