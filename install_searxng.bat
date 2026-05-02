@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ============================================================
-echo   SearXNG Windows - Instalador Automatico
+echo   SearXNG Windows - Instalador e Executor Automatico
 echo ============================================================
 echo.
 
@@ -20,90 +20,23 @@ echo [OK] Python detectado
 python --version
 echo.
 
-:: Instalar todas as dependencias do requirements.txt
-echo [INFO] Verificando e instalando dependencias...
-echo.
-
-:: Lista de todas as dependencias necessarias
-echo [INFO] Instalando aiohttp...
-pip install aiohttp>=3.9.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] aiohttp instalado
-) else (
-    echo [ERRO] Falha ao instalar aiohttp
-    pause
-    exit /b 1
-)
-
-echo [INFO] Instalando aiohttp-socks...
-pip install aiohttp-socks>=0.8.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] aiohttp-socks instalado
-) else (
-    echo [AVISO] Falha ao instalar aiohttp-socks (opcional)
-)
-
-echo [INFO] Instalando beautifulsoup4...
-pip install beautifulsoup4>=4.12.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] beautifulsoup4 instalado
-) else (
-    echo [ERRO] Falha ao instalar beautifulsoup4
-    pause
-    exit /b 1
-)
-
-echo [INFO] Instalando lxml...
-pip install lxml>=5.0.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] lxml instalado
-) else (
-    echo [ERRO] Falha ao instalar lxml
-    pause
-    exit /b 1
-)
-
-echo [INFO] Instalando jinja2...
-pip install jinja2>=3.1.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] jinja2 instalado
-) else (
-    echo [ERRO] Falha ao instalar jinja2
-    pause
-    exit /b 1
-)
-
-echo [INFO] Instalando pyyaml...
-pip install pyyaml>=6.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] pyyaml instalado
-) else (
-    echo [AVISO] Falha ao instalar pyyaml (opcional)
-)
-
-echo [INFO] Instalando structlog...
-pip install structlog>=24.0.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] structlog instalado
-) else (
-    echo [AVISO] Falha ao instalar structlog (opcional)
-)
-
-echo [INFO] Instalando python-dateutil...
-pip install python-dateutil>=2.8.0 --quiet
-if %errorlevel% equ 0 (
-    echo [OK] python-dateutil instalado
-) else (
-    echo [AVISO] Falha ao instalar python-dateutil (opcional)
-)
-
-echo.
-echo [OK] Todas as dependencias foram verificadas/instaladas
-echo.
-
-:: Atualizar pip antes de continuar (opcional, mas recomendado)
+:: Atualizar pip rapidamente
 echo [INFO] Atualizando pip...
-python -m pip install --upgrade pip --quiet
+python -m pip install --upgrade pip --quiet --no-warn-script-location
+echo [OK] Pip atualizado
+echo.
+
+:: Instalar dependencias rapidamente sem cache
+echo [INFO] Instalando dependencias necessarias...
+echo [INFO] Isso pode levar alguns segundos na primeira vez...
+pip install aiohttp beautifulsoup4 lxml jinja2 --quiet --no-cache-dir --no-warn-script-location
+if %errorlevel% equ 0 (
+    echo [OK] Dependencias instaladas com sucesso
+) else (
+    echo [ERRO] Falha ao instalar dependencias
+    pause
+    exit /b 1
+)
 echo.
 
 :: Verificar se o arquivo main.py existe
@@ -114,31 +47,35 @@ if not exist "main.py" (
     exit /b 1
 )
 
-:: Verificar se o diretorio config existe
-if not exist "config\" (
-    echo [AVISO] Diretorio config nao encontrado, criando...
-    mkdir config
+:: Obter IP local
+for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
+    for %%b in (%%a) do set LOCAL_IP=%%b
 )
+if "%LOCAL_IP%"=="" set LOCAL_IP=127.0.0.1
 
-:: Iniciar o servidor
 echo ============================================================
-echo   Iniciando SearXNG Windows...
+echo   Iniciando SearXNG Server...
 echo ============================================================
 echo.
-echo Servidor web disponivel em:
-echo http://localhost:8080
-echo http://127.0.0.1:8080
+echo Servidor disponivel em:
+echo   Local: http://127.0.0.1:8080
+echo   Rede:  http://%LOCAL_IP%:8080
 echo.
-echo Endpoints disponiveis:
-echo   - Homepage: http://localhost:8080/
-echo   - API Search: http://localhost:8080/api/search?q=seu_termo
-echo   - API Engines: http://localhost:8080/api/engines
-echo   - Health Check: http://localhost:8080/health
+echo Cache: DESATIVADO (resultados sempre atualizados)
+echo.
+echo Abrindo navegador em 3 segundos...
 echo.
 echo Pressione Ctrl+C para parar o servidor
 echo ============================================================
 echo.
 
-python main.py --server --port 8080
+:: Aguardar 3 segundos antes de abrir o navegador
+timeout /t 3 /nobreak >nul
+
+:: Tentar abrir Chrome, se nao existir tenta Edge ou navegador padrao
+start chrome.exe http://127.0.0.1:8080 2>nul || start microsoft-edge:http://127.0.0.1:8080 2>nul || start http://127.0.0.1:8080
+
+:: Iniciar servidor sem cache
+python main.py --server --port 8080 --no-cache
 
 pause

@@ -3,175 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ query }} - Ataque-total Search</title>
+    <title>{{ query if query else 'Início' }} - Ataque-total Search</title>
     <style>
         :root {
-            --bg-primary: #1a1a2e;
-            --bg-secondary: #16213e;
-            --text-primary: #eee;
-            --text-secondary: #bbb;
-            --accent: #e94560;
-            --link: #4da8da;
-            --link-visited: #a78bfa;
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #252542;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --accent: #ff4757;
+            --accent-hover: #ff6b7a;
+            --link: #3498db;
+            --link-hover: #5dade2;
+            --success: #2ecc71;
+            --border: rgba(255, 255, 255, 0.1);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             color: var(--text-primary);
             line-height: 1.6;
+            min-height: 100vh;
         }
         
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         
         header {
-            background: var(--bg-secondary);
-            padding: 20px 0;
+            background: rgba(26, 26, 46, 0.95);
+            padding: 25px 0;
             border-bottom: 2px solid var(--accent);
             position: sticky;
             top: 0;
             z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            background: linear-gradient(90deg, var(--accent), #ffa502);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .search-form {
             display: flex;
-            gap: 10px;
-            max-width: 700px;
+            gap: 12px;
+            max-width: 750px;
             margin: 0 auto;
         }
         
         .search-input {
             flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 25px;
+            padding: 15px 25px;
+            border: 2px solid var(--border);
+            border-radius: 30px;
             background: var(--bg-primary);
             color: var(--text-primary);
             font-size: 16px;
+            transition: all 0.3s ease;
         }
         
         .search-input:focus {
-            outline: 2px solid var(--accent);
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
         }
         
         .search-btn {
-            padding: 12px 25px;
-            background: var(--accent);
+            padding: 15px 35px;
+            background: linear-gradient(135deg, var(--accent), #ff6b7a);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
         }
         
-        .search-btn:hover { transform: scale(1.05); }
+        .search-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.5);
+        }
         
         .stats {
-            padding: 10px 0;
+            padding: 15px 0;
             color: var(--text-secondary);
             font-size: 14px;
+            text-align: center;
+            background: var(--bg-card);
+            border-radius: 10px;
+            margin: 20px 0;
         }
         
-        .results { margin-top: 20px; }
+        .results { margin-top: 25px; }
         
         .result {
-            background: var(--bg-secondary);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border-left: 3px solid transparent;
-            transition: border-color 0.2s;
+            background: var(--bg-card);
+            padding: 25px;
+            margin-bottom: 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
         }
         
-        .result:hover { border-left-color: var(--accent); }
+        .result:hover { 
+            border-color: var(--accent);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
         
         .result-title {
-            font-size: 18px;
-            margin-bottom: 8px;
+            font-size: 20px;
+            margin-bottom: 10px;
         }
         
         .result-title a {
             color: var(--link);
             text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
         }
         
-        .result-title a:hover { text-decoration: underline; }
+        .result-title a:hover { 
+            color: var(--link-hover);
+            text-decoration: underline; 
+        }
         
         .result-url {
             color: var(--text-secondary);
             font-size: 13px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             word-break: break-all;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
         }
         
         .result-content {
             color: var(--text-primary);
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 15px;
+            line-height: 1.6;
         }
         
         .result-meta {
-            margin-top: 10px;
-            font-size: 12px;
-            color: var(--text-secondary);
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .engine-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 4px 12px;
             background: var(--accent);
-            border-radius: 3px;
-            font-size: 11px;
-            margin-right: 5px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         .score-badge {
             display: inline-block;
-            padding: 2px 8px;
-            background: #4ade80;
+            padding: 4px 12px;
+            background: var(--success);
             color: #000;
-            border-radius: 3px;
-            font-size: 11px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 50px;
             color: var(--text-secondary);
+            font-size: 18px;
         }
         
         .error {
-            background: #ef4444;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 20px;
+            border-radius: 10px;
             margin: 20px 0;
         }
         
         .categories {
             display: flex;
             gap: 10px;
-            margin: 15px 0;
+            margin: 20px 0;
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .category-btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: var(--bg-primary);
             color: var(--text-primary);
-            border: 1px solid var(--accent);
-            border-radius: 20px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
             cursor: pointer;
             text-decoration: none;
             font-size: 14px;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
         
         .category-btn:hover, .category-btn.active {
             background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
         }
         
         footer {
@@ -179,21 +234,70 @@
             padding: 30px;
             color: var(--text-secondary);
             font-size: 13px;
-            margin-top: 40px;
-            border-top: 1px solid var(--bg-secondary);
+            margin-top: 50px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .bang-hint {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .bang-hint code {
+            background: var(--bg-primary);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+        
+        /* Homepage styles */
+        .homepage {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .homepage h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .homepage p {
+            color: var(--text-secondary);
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
+            <div class="logo">
+                <h1>🔍 Ataque-total Search</h1>
+            </div>
             <form class="search-form" method="GET" action="/">
                 <input type="text" name="q" class="search-input" 
-                       value="{{ query }}" placeholder="Search... (try !wiki python)" autofocus>
-                <button type="submit" class="search-btn">Search</button>
+                       value="{{ query }}" placeholder="Digite sua pesquisa... (use !wiki, !gh, !yt)" autofocus>
+                <button type="submit" class="search-btn">🔎 Buscar</button>
             </form>
-            {% if categories %}
+            {% if categories and query %}
             <div class="categories">
+                <a href="/" class="category-btn">Todos</a>
                 {% for cat in categories %}
                 <a href="/?q={{ query }}&category={{ cat }}" 
                    class="category-btn {% if cat == current_category %}active{% endif %}">
@@ -206,13 +310,30 @@
     </header>
     
     <main class="container">
+        {% if not query %}
+        <div class="homepage">
+            <h2>Bem-vindo ao Ataque-total Search</h2>
+            <p>Um motor de busca focado em privacidade</p>
+            
+            <div class="bang-hint">
+                <strong>Dicas de uso:</strong><br><br>
+                Use comandos especiais (bangs) para buscar em sites específicos:<br>
+                <code>!wiki python</code> - Buscar no Wikipedia<br>
+                <code>!gh machine learning</code> - Buscar no GitHub<br>
+                <code>!yt tutorial</code> - Buscar no YouTube<br>
+                <code>!so javascript error</code> - Buscar no StackOverflow<br>
+                <code>!reddit crypto</code> - Buscar no Reddit
+            </div>
+        </div>
+        {% endif %}
+        
         {% if error %}
-        <div class="error">{{ error }}</div>
+        <div class="error">❌ {{ error }}</div>
         {% endif %}
         
         {% if results %}
         <div class="stats">
-            About {{ results|length }} results from {{ engines_used|length }} engines 
+            📊 {{ results|length }} resultados encontrados de {{ engines_used|length }} motores 
             ({{ search_time|round(2) }}s)
         </div>
         
@@ -224,28 +345,30 @@
                         {{ result.title }}
                     </a>
                 </h3>
-                <div class="result-url">{{ result.url }}</div>
+                <div class="result-url">🔗 {{ result.url }}</div>
                 <div class="result-content">{{ result.content }}</div>
                 <div class="result-meta">
-                    <span class="engine-badge">{{ result.engine }}</span>
+                    <span class="engine-badge">⚡ {{ result.engine }}</span>
                     {% if result.score %}
-                    <span class="score-badge">Score: {{ result.score }}</span>
+                    <span class="score-badge">⭐ {{ result.score }}</span>
                     {% endif %}
                     {% if result.cross_engine_count and result.cross_engine_count > 1 %}
-                    <span>Found in {{ result.cross_engine_count }} engines</span>
+                    <span>📌 Encontrado em {{ result.cross_engine_count }} motores</span>
                     {% endif %}
                 </div>
             </article>
             {% endfor %}
         </div>
-        {% elif query %}
-        <div class="loading">No results found for "{{ query }}"</div>
+        {% elif query and not error %}
+        <div class="loading">
+            😕 Nenhum resultado encontrado para "<strong>{{ query }}</strong>"
+        </div>
         {% endif %}
     </main>
     
     <footer>
-        <p>Ataque-total Search Engine | Privacy-focused meta-search</p>
-        <p>Supports bangs: !wiki, !gh, !so, !yt, !r, !g, !b, !d</p>
+        <p>🔒 Ataque-total Search Engine | Focado em privacidade</p>
+        <p>Bangs disponíveis: !wiki, !gh, !so, !yt, !r, !g, !b, !d</p>
     </footer>
 </body>
 </html>
