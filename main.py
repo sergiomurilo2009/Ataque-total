@@ -78,7 +78,7 @@ USER_AGENTS = [
 # Headers base mais completos e realistas
 BASE_HEADERS = {
     "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8,en-US;q=0.7",
-    "Accept-Encoding": "gzip, deflate",  # Removido 'br' (Brotli) para evitar dependencia
+    "Accept-Encoding": "gzip, deflate",
     "DNT": "1",
     "Connection": "keep-alive",
     "Upgrade-Insecure-Requests": "1",
@@ -90,11 +90,95 @@ BASE_HEADERS = {
     "Sec-Fetch-Site": "none",
     "Sec-Fetch-User": "?1",
     "Cache-Control": "max-age=0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
 }
 
-# Delay entre requisições (em segundos) - Ajustável para evitar bloqueios
-REQUEST_DELAY_MIN = 0.5  # Reduzido para APIs oficiais
-REQUEST_DELAY_MAX = 1.5  # Reduzido para melhor performance
+# Headers específicos por engine para evitar bloqueios - OTIMIZADOS
+ENGINE_SPECIFIC_HEADERS = {
+    "Google": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+    },
+    "Bing": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+    },
+    "DuckDuckGo": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Referer": "https://duckduckgo.com/",
+    },
+    "Yandex": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
+    },
+    "YouTube": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "X-Client-Data": "CKG1yQE=",
+    },
+    "Qwant": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Referer": "https://www.qwant.com/",
+    },
+    "Startpage": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Referer": "https://www.startpage.com/",
+    },
+    "GitHub": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Sec-Fetch-Dest": "document",
+    },
+    "Wikipedia": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    },
+    "StackOverflow": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    },
+    "GitLab": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    },
+    "Dailymotion": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    },
+}
+
+# Delay entre requisições (em segundos) - OTIMIZADO para melhor performance e menos bloqueios
+REQUEST_DELAY_MIN = 0.3  # Reduzido para APIs oficiais
+REQUEST_DELAY_MAX = 0.8  # Reduzido para melhor performance
+
+# Delay específico por engine (segundos)
+ENGINE_DELAYS = {
+    "Google": (0.5, 1.0),      # Google tem detecção rigorosa
+    "Bing": (0.4, 0.8),
+    "DuckDuckGo": (0.3, 0.6),  # DuckDuckGo é mais amigável
+    "Yandex": (0.4, 0.8),
+    "YouTube": (0.5, 1.0),     # YouTube também tem detecção
+    "Qwant": (0.3, 0.6),
+    "Startpage": (0.3, 0.6),
+    "GitHub": (0.2, 0.4),      # APIs oficiais são mais rápidas
+    "GitLab": (0.2, 0.4),
+    "Wikipedia": (0.2, 0.4),
+    "StackOverflow": (0.2, 0.4),
+    "Dailymotion": (0.3, 0.6),
+}
+
+# Timeout específico por engine (segundos)
+ENGINE_TIMEOUTS = {
+    "Google": 25,
+    "Bing": 20,
+    "DuckDuckGo": 20,
+    "Yandex": 20,
+    "YouTube": 30,              # YouTube pode demorar mais
+    "Qwant": 20,
+    "Startpage": 20,
+    "GitHub": 15,
+    "GitLab": 15,
+    "Wikipedia": 15,
+    "StackOverflow": 15,
+    "Dailymotion": 20,
+}
 
 # Limite de conexões simultâneas - Aumentado para melhor throughput
 MAX_CONCURRENT_CONNECTIONS = 10
@@ -121,23 +205,32 @@ class SearchEngine:
         headers = BASE_HEADERS.copy()
         headers["User-Agent"] = user_agent
         
+        # Adiciona headers específicos por engine para evitar bloqueios
+        if self.name in ENGINE_SPECIFIC_HEADERS:
+            headers.update(ENGINE_SPECIFIC_HEADERS[self.name])
+        
         # Se for usar API URL, definir Accept como JSON
         if self.api_url:
             headers["Accept"] = "application/json"
             # Wikipedia requer User-Agent informativo
             if "wikipedia.org" in self.api_url:
                 headers["User-Agent"] = "SearchApp/1.0 (contact: info@example.com)"
-        else:
-            headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
         
         return headers
 
     async def _apply_delay(self):
-        """Aplica delay aleatório entre requisições para evitar bloqueios"""
+        """Aplica delay aleatório específico por engine para evitar bloqueios"""
         now = time.time()
         elapsed = now - self.last_request_time
-        if elapsed < REQUEST_DELAY_MIN:
-            delay = random.uniform(REQUEST_DELAY_MIN, REQUEST_DELAY_MAX)
+        
+        # Usa delay específico da engine se disponível
+        if self.name in ENGINE_DELAYS:
+            min_delay, max_delay = ENGINE_DELAYS[self.name]
+        else:
+            min_delay, max_delay = REQUEST_DELAY_MIN, REQUEST_DELAY_MAX
+        
+        if elapsed < min_delay:
+            delay = random.uniform(min_delay, max_delay)
             await asyncio.sleep(delay)
         self.last_request_time = time.time()
 
@@ -148,7 +241,7 @@ class SearchEngine:
         # Aplica delay antes da requisição (reduzido para APIs oficiais)
         if self.api_url:
             # APIs oficiais tem delay menor
-            await asyncio.sleep(random.uniform(0.2, 0.5))
+            await asyncio.sleep(random.uniform(0.15, 0.3))
         else:
             await self._apply_delay()
         
@@ -162,8 +255,8 @@ class SearchEngine:
             if "api.php" in self.api_url or "/api/" in self.api_url:
                 headers["Accept"] = "application/json"
         else:
-            # Constrói URL com query e paginação
-            url = f"{self.base_url}{self.search_param}={quote_plus(query)}"
+            # Constrói URL com query - URLs já incluem o separador correto
+            url = f"{self.base_url}{quote_plus(query)}"
             # Adiciona paginação se suportado
             if page > 1 and self.page_param:
                 # Calcula offset baseado na página (10 resultados por página)
@@ -171,7 +264,7 @@ class SearchEngine:
                     # Google usa start=0, start=10, start=20...
                     start = (page - 1) * 10
                     url += f"&{self.page_param}={start}"
-                elif self.name in ["Bing", "DuckDuckGo", "Yandex", "Brave"]:
+                elif self.name in ["Bing", "DuckDuckGo", "Yandex"]:
                     # Bing usa first=11, first=21... DuckDuckGo usa s=10, s=20...
                     offset = (page - 1) * 10 + (1 if self.name == "Bing" else 0)
                     url += f"&{self.page_param}={offset}"
@@ -181,8 +274,8 @@ class SearchEngine:
         
         try:
             self.request_count += 1
-            # Timeout maior para scraping HTML
-            timeout = 20 if not self.api_url else 15
+            # Timeout específico por engine
+            timeout = ENGINE_TIMEOUTS.get(self.name, 20 if not self.api_url else 15)
             async with session.get(url, headers=headers, timeout=timeout, ssl=False, allow_redirects=True) as response:
                 if response.status == 200:
                     content_type = response.headers.get('Content-Type', '')
@@ -449,31 +542,55 @@ class SearchEngine:
         return results
 
     def _parse_ddg(self, html_content):
+        """Parser para DuckDuckGo HTML - Versão melhorada"""
         results = []
-        # DuckDuckGo HTML version
-        pattern = r'<div class="result__body"(.*?)</div>'
+        seen = set()
+        
+        # DuckDuckGo HTML usa estrutura: div.links_main.result__body
+        pattern = r'<div class="links_main links_deep result__body"[^>]*>(.*?)</div>'
         matches = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
         
-        for match in matches[:10]:
-            title_match = re.search(r'<a class="result__a" href="([^"]+)".*?>(.*?)</a>', match, re.DOTALL)
+        for match in matches[:20]:
+            # Extrai titulo e URL do link principal
+            title_match = re.search(r'<a rel="nofollow" class="result__a" href="([^"]+)">([^<]+)</a>', match, re.DOTALL)
             snippet_match = re.search(r'<a class="result__snippet"[^>]*>(.*?)</a>', match, re.DOTALL)
             
             if title_match:
-                url = title_match.group(1)
+                url_raw = title_match.group(1)
+                title = self._clean_text(title_match.group(2))
+                
+                # Decodifica URL do DuckDuckGo (redirect)
+                url = url_raw
+                if "uddg=" in url_raw:
+                    try:
+                        from urllib.parse import unquote, parse_qs, urlparse
+                        parsed = urlparse(url_raw)
+                        params = parse_qs(parsed.query)
+                        if 'uddg' in params:
+                            url = unquote(params['uddg'][0])
+                    except:
+                        pass
+                
                 if url.startswith("//"): 
                     url = "https:" + url
                 
-                title = self._clean_text(title_match.group(2))
-                snippet = self._clean_text(snippet_match.group(1)) if snippet_match else ""
+                snippet = ""
+                if snippet_match:
+                    snippet = self._clean_text(snippet_match.group(1))
                 
-                results.append({
-                    "title": title if title else "Sem título",
-                    "url": url,
-                    "content": snippet if snippet else "Sem descrição",
-                    "engine": self.name,
-                    "category": self.category
-                })
+                # Filtra duplicatas e URLs vazias
+                if url and len(title) > 3 and url not in seen and "duckduckgo.com" not in url.split('/')[2]:
+                    seen.add(url)
+                    results.append({
+                        "title": title if title else "Sem título",
+                        "url": url,
+                        "content": snippet if snippet else "Sem descrição",
+                        "engine": self.name,
+                        "category": self.category
+                    })
+        
         return results
+
 
     def _parse_yandex(self, html_content):
         results = []
@@ -597,31 +714,58 @@ class SearchEngine:
         return results
 
     def _parse_youtube(self, html_content):
+        """Parser para YouTube - Versão melhorada com múltiplos padrões"""
         results = []
-        # YouTube requer JS para renderizar, fallback para links
+        seen = set()
+        
+        # Padrões para extrair vídeos do YouTube (HTML inicial tem dados limitados)
         patterns = [
-            r'<a href="(/watch\?v=[^"]+)".*?title="([^"]+)"',
+            # Padrão 1: link completo com title attribute
+            r'<a href="(/watch\?v=[^"]+)"[^>]*title="([^"]+)"',
+            # Padrão 2: videoId em ytInitialData
+            r'"videoId":"([a-zA-Z0-9_-]+)".*?"title":"([^"]+)"',
+            # Padrão 3: link simplificado
             r'href="(/watch\?v=[a-zA-Z0-9_-]+)"[^>]*>([^<]{10,100})',
+            # Padrão 4: título em h3 ou h2
+            r'<a href="(/watch\?v=[a-zA-Z0-9_-]+)".*?><h[23][^>]*>([^<]+)</h[23]>',
         ]
         
-        seen = set()
         for pattern in patterns:
-            links = re.findall(pattern, html_content)
-            for url, title in links[:10]:
-                if '/watch?v=' not in url:
-                    url = f"/watch?v={url}"
-                full_url = "https://youtube.com" + url
-                if full_url not in seen and len(title) > 3:
-                    seen.add(full_url)
-                    results.append({
-                        "title": self._clean_text(title),
-                        "url": full_url,
-                        "content": "Vídeo no YouTube",
-                        "engine": self.name,
-                        "category": self.category
-                    })
             if len(results) >= 10:
                 break
+            try:
+                links = re.findall(pattern, html_content, re.DOTALL | re.IGNORECASE)
+                for match in links:
+                    if len(results) >= 10:
+                        break
+                    url = match[0]
+                    title = match[1] if len(match) > 1 else ""
+                    
+                    # Limpar título de entidades HTML
+                    title = html.unescape(title)
+                    title = re.sub(r'<[^>]+>', '', title).strip()
+                    
+                    # Normalizar URL
+                    if not url.startswith('/watch'):
+                        url = f"/watch?v={url}"
+                    if not url.startswith('http'):
+                        full_url = "https://www.youtube.com" + url
+                    else:
+                        full_url = url
+                    
+                    # Filtrar duplicatas e títulos vazios
+                    if full_url not in seen and len(title) > 5:
+                        seen.add(full_url)
+                        results.append({
+                            "title": title[:100],  # Limitar tamanho do título
+                            "url": full_url,
+                            "content": "Vídeo no YouTube",
+                            "engine": self.name,
+                            "category": self.category
+                        })
+            except Exception:
+                continue
+        
         return results
 
     def _parse_ecosia(self, html_content):
@@ -665,20 +809,48 @@ class SearchEngine:
         return results
 
     def _parse_generic(self, html_content):
+        """Parser genérico melhorado com múltiplos padrões de fallback"""
         results = []
-        # Tenta encontrar links genéricos
-        links = re.findall(r'<a href="(https?://[^"]+)".*?>([^<]{20,150})</a>', html_content)
         seen = set()
-        for url, title in links[:10]:
-            if url not in seen and len(title) > 10:
+        
+        # Padrão 1: Links com título descritivo (20-150 chars)
+        links = re.findall(r'<a href="(https?://[^"]+)"[^>]*>([^<]{20,150})</a>', html_content)
+        
+        # Padrão 2: Links em divs ou spans de resultado
+        if not links:
+            links = re.findall(r'<div[^>]*class="[^"]*result[^"]*"[^>]*>.*?<a href="(https?://[^"]+)".*?>([^<]{10,200})</a>', html_content, re.DOTALL)
+        
+        # Padrão 3: Links em h2/h3 headings
+        if not links:
+            links = re.findall(r'<h[23][^>]*><a href="(https?://[^"]+)".*?>([^<]{10,150})</a></h[23]>', html_content)
+        
+        # Padrão 4: Fallback mais amplo
+        if not links:
+            links = re.findall(r'<a href="(https?://[^"]+)"[^>]*title="([^"]{10,150})"', html_content)
+        
+        for url, title in links:
+            # Limpar título
+            title = self._clean_text(title)
+            
+            # Filtrar URLs indesejadas e duplicatas
+            if (url not in seen and 
+                len(title) > 10 and 
+                'javascript:' not in url and
+                '#' not in url.split('/')[0] and
+                not url.endswith(('.css', '.js', '.png', '.jpg', '.gif'))):
+                
                 seen.add(url)
                 results.append({
-                    "title": self._clean_text(title),
+                    "title": title[:150],  # Limitar tamanho
                     "url": url,
-                    "content": "Resultado encontrado",
+                    "content": f"Resultado de {self.name}",
                     "engine": self.name,
                     "category": self.category
                 })
+            
+            if len(results) >= 10:
+                break
+        
         return results
 
 
@@ -693,6 +865,9 @@ class SearXNGCore:
         # Lista completa de Engines com URLs otimizadas
         # Priorizando APIs oficiais quando disponíveis para resultados mais confiáveis
         # Estratégia anti-bloqueio: múltiplos fallbacks e rotação de user agents
+        
+        # Nota: Alguns engines estão desabilitados por padrão devido a bloqueios agressivos
+        # Muitos sites usam proteções anti-bot (Cloudflare, Akamai, etc.) que impedem scraping
         
         # APIs Oficiais (prioridade máxima - não requerem scraping, mais estáveis)
         self.engines = [
@@ -729,43 +904,44 @@ class SearXNGCore:
                 api_url="https://api.stackexchange.com/2.3/search?order=desc&sort=relevance&site=stackoverflow&intitle="
             ),
             # Google - Scraping via interface web (requer paginação)
-            SearchEngine("Google", "https://www.google.com/search", "q", "general", page_param="start"),
+            SearchEngine("Google", "https://www.google.com/search?q=", "q", "general", page_param="start"),
             # DuckDuckGo HTML (não tem API oficial, mas versão HTML é amigável)
-            SearchEngine("DuckDuckGo", "https://html.duckduckgo.com/html", "q", "general", page_param="s"),
+            SearchEngine("DuckDuckGo", "https://html.duckduckgo.com/html?q=", "q", "general", page_param="s"),
             # Bing - Scraping com headers melhorados
-            SearchEngine("Bing", "https://www.bing.com/search", "q", "general", page_param="first"),
-            # Brave Search - Scraping
-            SearchEngine("Brave", "https://search.brave.com/search", "q", "general", page_param="page"),
+            SearchEngine("Bing", "https://www.bing.com/search?q=", "q", "general", page_param="first"),
+            # Brave Search - DESABILITADO: Proteções anti-bot rigorosas (429/403)
+            SearchEngine("Brave", "https://search.brave.com/search?q=", "q", "general", page_param="page", enabled=False),
             # Yandex - Scraping
-            SearchEngine("Yandex", "https://yandex.ru/search/", "text", "general", page_param="p"),
-            # Reddit - Scraping (old.reddit é mais amigável para scraping)
+            SearchEngine("Yandex", "https://yandex.ru/search/?text=", "text", "general", page_param="p"),
+            # Reddit - DESABILITADO: Requer JavaScript/bot detection (403)
             SearchEngine(
                 "Reddit", 
-                "https://old.reddit.com/search", 
+                "https://old.reddit.com/search?q=", 
                 "q", 
                 "social",
-                page_param="page"
+                page_param="page",
+                enabled=False
             ),
             # YouTube - Scraping (YouTube Data API v3 requer chave, usando scraping como fallback)
-            SearchEngine("YouTube", "https://www.youtube.com/results", "search_query", "videos", page_param="page"),
+            SearchEngine("YouTube", "https://www.youtube.com/results?search_query=", "search_query", "videos", page_param="page"),
             # Dailymotion - Scraping
-            SearchEngine("Dailymotion", "https://www.dailymotion.com/search", "query", "videos", page_param="page"),
-            # Pexels - Scraping (Pexels API existe mas requer chave)
-            SearchEngine("Pexels", "https://www.pexels.com/search/", "q", "images", page_param="page"),
-            # Ecosia - Motor de busca ecológico
-            SearchEngine("Ecosia", "https://www.ecosia.org/search", "q", "general", page_param="page"),
+            SearchEngine("Dailymotion", "https://www.dailymotion.com/search/", "query", "videos", page_param="page"),
+            # Pexels - DESABILITADO: Proteções anti-bot rigorosas (403)
+            SearchEngine("Pexels", "https://www.pexels.com/search/", "q", "images", page_param="page", enabled=False),
+            # Ecosia - DESABILITADO: Proteções anti-bot rigorosas (403)
+            SearchEngine("Ecosia", "https://www.ecosia.org/search?q=", "q", "general", page_param="page", enabled=False),
             # Qwant - Motor de busca europeu focado em privacidade
-            SearchEngine("Qwant", "https://www.qwant.com/", "q", "general", page_param="page"),
+            SearchEngine("Qwant", "https://www.qwant.com/?q=", "q", "general", page_param="page"),
             # Startpage - Motor de busca focado em privacidade (resultados do Google)
-            SearchEngine("Startpage", "https://www.startpage.com/sp/search", "query", "general", page_param="page"),
-            # Mojeek - Motor de busca independente com crawler próprio
-            SearchEngine("Mojeek", "https://www.mojeek.com/search", "q", "general", page_param="page"),
-            # Metacrawler - Meta buscador
-            SearchEngine("Metacrawler", "https://www.metacrawler.com/web", "q", "general", page_param="page"),
-            # Lycos - Motor de busca clássico
-            SearchEngine("Lycos", "https://search.lycos.com/web/", "q", "general", page_param="page"),
-            # AOL Search - Portal de busca
-            SearchEngine("AOL", "https://search.aol.com/aol/search", "q", "general", page_param="page"),
+            SearchEngine("Startpage", "https://www.startpage.com/sp/search?query=", "query", "general", page_param="page"),
+            # Mojeek - DESABILITADO: Proteções anti-bot (403)
+            SearchEngine("Mojeek", "https://www.mojeek.com/search?q=", "q", "general", page_param="page", enabled=False),
+            # Metacrawler - DESABILITADO: Proteções anti-bot (403)
+            SearchEngine("Metacrawler", "https://www.metacrawler.com/web?q=", "q", "general", page_param="page", enabled=False),
+            # Lycos - DESABILITADO: Problemas de conexão DNS
+            SearchEngine("Lycos", "https://search.lycos.com/web?q=", "q", "general", page_param="page", enabled=False),
+            # AOL Search - DESABILITADO: Retornando 404
+            SearchEngine("AOL", "https://search.aol.com/aol/search?q=", "q", "general", page_param="page", enabled=False),
         ]
 
     def load_config(self):
