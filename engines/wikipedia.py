@@ -35,7 +35,7 @@ class WikipediaEngine(BaseEngine):
 
         try:
             timeout = 15
-            async with session.get(url, headers=headers, timeout=timeout) as response:
+            async with session.get(url, headers=headers, timeout=timeout, ssl=False) as response:
                 if response.status == 200:
                     data = await response.json()
                     return self.parse_results(data, query)
