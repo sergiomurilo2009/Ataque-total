@@ -73,18 +73,21 @@ class DuckDuckGoEngine(BaseEngine):
 
                 if title_elem and url_elem:
                     title = title_elem.get_text(strip=True)
-                    url = url_elem.get('href', '')
+                    raw_url = url_elem.get('href', '')
                     
-                    # DuckDuckGo sometimes has redirect URLs
-                    if url.startswith('//') or 'duckduckgo.com' in url:
+                    # Extract real URL from DuckDuckGo redirect links
+                    real_url = self._extract_real_url(raw_url)
+                    
+                    # Skip internal DuckDuckGo links and ads
+                    if not real_url or 'duckduckgo.com' in real_url or '/y.js' in raw_url:
                         continue
                     
                     snippet = snippet_elem.get_text(strip=True) if snippet_elem else ''
 
-                    if url and 'http' in url:
+                    if real_url and real_url.startswith('http'):
                         results.append({
                             "title": title or "No title",
-                            "url": url,
+                            "url": real_url,
                             "content": snippet or "No description",
                             "engine": self.name,
                             "category": self.category
@@ -97,6 +100,31 @@ class DuckDuckGoEngine(BaseEngine):
         except Exception as e:
             print(f"[Parse Error] DuckDuckGo: {str(e)[:50]}")
             return []
+    
+    def _extract_real_url(self, ddg_url: str) -> str:
+        """Extract the real destination URL from DuckDuckGo redirect links"""
+        if not ddg_url or 'duckduckgo.com/l/?uddg=' not in ddg_url:
+            # If it's already a direct URL (starts with http), return it
+            if ddg_url and ddg_url.startswith('http'):
+                return ddg_url
+            return ''
+        
+        try:
+            from urllib.parse import unquote, parse_qs, urlparse
+            
+            # Extract the uddg parameter which contains the encoded URL
+            parsed = urlparse(ddg_url)
+            params = parse_qs(parsed.query)
+            
+            if 'uddg' in params:
+                encoded_url = params['uddg'][0]
+                # URL decode the result
+                real_url = unquote(encoded_url)
+                return real_url
+        except Exception:
+            pass
+        
+        return ''
 
     def _parse_ddg_regex(self, html_content: str, query: str) -> List[Dict[str, Any]]:
         """Fallback regex parser"""
